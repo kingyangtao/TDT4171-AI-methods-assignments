@@ -99,11 +99,11 @@ def forward_backward(ev, prior, O, T):
     # For each iteration we update the backward message variable
     # We then calculate the new probabilty, taken the old into account
     sv[j] = normalize( fv[j] * b )
-    #print "Smoothing array for step %i:\t %s" % (j, sv[j])
+    #print "Smoothing array for step %i: %s" % (j, sv[j])
     b = backward(b, ev[j-1], O, T)
     print "Backward-array for step %i: %s " % (j, b)
   
-  # Return the actual result
+  # Return the final result after smoothing
   return sv
 
 if __name__ == '__main__':
