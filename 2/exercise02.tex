@@ -1,0 +1,159 @@
+\documentclass{article}
+\usepackage{enumerate}
+\usepackage{amsmath}
+\usepackage[T1]{fontenc}
+
+\setlength{\parindent}{0.0in}
+\setlength{\parskip}{0.1in}
+
+\title{Methods in Artificial Intelligence \\
+        \normalsize Exercise 2}
+\author{Herman Schistad - MTDT}
+\date{01.02.2012}
+\begin{document}
+\maketitle
+
+\section*{Part A}
+\begin{enumerate}[(i)]
+\item What is the set of unobserved variable(s) for a given time-slice t
+
+The unobserved variables in the given HMM (Hidden-markov model) are the values which we (logically) 
+cannot observe - and in this example the actual weather in our model. That is in the given time-slice
+t the unobserved value is the weather outside.
+
+\item What is the set of observable variables given time-slice t
+
+The observable variables in the given HMM are the values which we are able to observe and in which we
+base our calculations (the evidence variables). In a given time-slice t, the observable value is whether
+we see an umbrella or not. 
+
+\item Present the dynamic model $P(X_t|X_{t-1})$ and the observation model $P(E_t|X_t)$ as matrices
+
+The dynamic model:
+
+\begin{equation}
+P(X_t|X_{t-1}) = \begin{bmatrix}
+  0.7 & 0.3 \\
+  0.3 & 0.7
+\end{bmatrix}
+\end{equation}
+
+The observation model:
+
+\begin{equation}
+P(E_t|E_{t-1}) =  \begin{bmatrix}
+  0.9 & 0.0 \\
+  0.0 & 0.2
+\end{bmatrix}
+\end{equation}
+
+\begin{equation}
+P(\neg E_t|E_{t-1}) =  \begin{bmatrix}
+  0.1 & 0.0 \\
+  0.0 & 0.8
+\end{bmatrix}
+\end{equation}
+
+\item Which assumptions are encoded in this model? Are the assumptions reasonable for this particular domain?
+
+Let's evaluate the Markov assumptions:
+
+{\bf First-order Markov process:} We do not have a first-order Markov process, since we know that the wheater
+is dependent on external factors such as seasons (winter/summer/autumn/spring) and enviromental changes.
+Based on this we can prove this sentence false: "first-order Markov process, in which the current state depends
+only on the previous state and not on any earlier states". When discussing the wheather, one could also say that
+the current wheather is dependent on at least two previous days (or even more).
+
+{\bf Stationary process:} We'll say that the model is a stationary process, since the wheather is controlled
+by the laws of nature. We can prove this statement valid as we have the same probability $P(R_t|R_t-1)$ for 
+all time-slices t. (See observational matrix above (2))
+
+{\bf Sensor Markov assumption:} This is a reasonable assumption, since we generate our sensor model based on
+the current evidence values. That is to say: we only base our sensor model on the value observed in the 
+time-slice t.
+
+\end{enumerate}
+
+\section*{Part B}
+
+\begin{itemize}
+
+\item Given the evidence $\{ Umbrella_1 = True, Umbrella_2 = True \}$:
+\begin{verbatim}
+$ python forward_backward.py
+---- Running forward ---
+Forward-message 0: [ 0.5  0.5]
+Forward-message 1: [ 0.81818182  0.18181818]
+Forward-message 2: [ 0.88335704  0.11664296]
+\end{verbatim}
+
+We obtain the result:
+\begin{equation}
+P(X_2|e_{1:2}) = 0.88335704
+\end{equation}
+
+\item Given the evidence $\{ Umbrella_1 = True, Umbrella_2 = True, Umbrella_3 = False, Umbrella_4 = True, Umbrella_5 = True \}$:
+\begin{verbatim}
+$ python forward_backward.py
+---- Running forward ---
+Forward-message 0: [ 0.5  0.5]
+Forward-message 1: [ 0.81818182  0.18181818]
+Forward-message 2: [ 0.88335704  0.11664296]
+Forward-message 3: [ 0.19066794  0.80933206]
+Forward-message 4: [ 0.730794  0.269206]
+Forward-message 5: [ 0.86733889  0.13266111]
+\end{verbatim}
+These are the normalized forward messages and we read that
+\begin{equation}
+P(X_5|e_{1:5}) = 0.86733889
+\end{equation}
+\end{itemize}
+
+\section*{Part C}
+
+\begin{itemize}
+
+\item By implementing smoothing (the 'backward' in the FORWARD-BACKWARD algorithm) we calculate the probability
+of rain on the first day given the same evidence as in (4):
+
+\begin{verbatim}
+$ python forward_backward.py
+(...)
+---- Results ---
+0: [ 0.65334282  0.34665718]
+1: [ 0.88335704  0.11664296]
+2: [ 0.88335704  0.11664296]
+\end{verbatim}
+
+As one can see:
+\begin{equation}
+P(X_1|e_{1:2}) = \langle0.883,0.117\rangle
+\end{equation}
+
+\item The probability of rain on day 1 given the sequence of observations, given the same evidence in (5) we
+can calculate the following results:
+
+\begin{verbatim}
+$ python forward_backward.py
+(...)
+---- Running backward ---
+Backward-array for step 5: [ 0.69  0.41] 
+Backward-array for step 4: [ 0.4593  0.2437] 
+Backward-array for step 3: [ 0.090639  0.150251] 
+Backward-array for step 2: [ 0.06611763  0.04550767] 
+Backward-array for step 1: [ 0.04438457  0.02422283] 
+Backward-array for step 0: [ 0.02941565  0.01537503]
+\end{verbatim}
+
+The answer is then given as:
+\begin{equation}
+P(X_1|e_{1:5}) = \langle0.867, 0.133\rangle
+\end{equation}
+\end{itemize}
+
+\section*{Part D}
+
+Please see attached file {\bf $forward\_backward.py$}.
+Hopefully the code is readable enough.
+
+\end{document}

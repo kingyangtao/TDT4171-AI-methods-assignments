@@ -6,7 +6,10 @@ def main():
   T = np.array([[0.7, 0.3],[0.3, 0.7]])
   prior = np.array([0.5, 0.5])
   evidence = [True, True, False, True, True]
-  print "Result: %s" % forward_backward(evidence, prior, O, T)
+  res = forward_backward(evidence, prior, O, T)
+  print "---- Results ---"
+  for i in range(len(res)):
+    print "%i: %s" % (i, res[i])
 
 def forward_backward(ev, prior, O, T):
   """
@@ -77,23 +80,28 @@ def forward_backward(ev, prior, O, T):
     return r
 
   # Initialize the forward messages array
-  fv = np.array([None]*(len(ev)+1))
+  t = len(ev) + 1
+  fv = np.array([None]*t)
   fv[0] = prior
-  t = len(ev)
-  for i in range(1, t+1):
+  print "---- Running forward ---"
+  print "Forward-message 0: %s" % fv[0]
+  for i in range(1, t):
     # For each evidence variable we update the forward messages
     fv[i] = forward(fv[i - 1], ev[i-1], O, T)
-
+    print "Forward-message %i: %s" % (i, fv[i])
   # Inititalize the smoothing and backwards array
-  sv = np.array([None]*(len(ev)+1))
+  sv = np.array([None]*t)
   sv[0] = prior
   b = np.array([1,1])
-
-  for j in range(t, 0, -1):
+  
+  print "---- Running backward ---"
+  for j in range(t-1, -1, -1):
     # For each iteration we update the backward message variable
     # We then calculate the new probabilty, taken the old into account
     sv[j] = normalize( fv[j] * b )
+    #print "Smoothing array for step %i:\t %s" % (j, sv[j])
     b = backward(b, ev[j-1], O, T)
+    print "Backward-array for step %i: %s " % (j, b)
   
   # Return the actual result
   return sv
