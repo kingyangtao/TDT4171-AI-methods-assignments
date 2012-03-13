@@ -1,23 +1,38 @@
+####
+#  Herman Schistad
+#  MTDT - NTNU - 2012
+####
+
 import numpy as np
-import pprint
 from random import choice
 
-random = False
-pp = pprint.PrettyPrinter(indent=4)
+random = True
 
 class Node():
+  spacing = ""
   def __init__(self, data):
     self.data = data
-    self.children = []
+    self.children = {}
 
-  def add_child(self, obj):
-    self.children.append(obj)
+  def add_child(self, key, value):
+    self.children[key] = value
+  
+  def print_node(self):
+    print "%s" % self.data
+    for key, value in self.children.iteritems():
+      self.children[key].print_node()
+
+class NodeLeaf():
+  def __init__(self, data):
+    self.data = data
+
+  def print_node(self):
+    print "L: %s" % self.data
 
 def main():
 
     #### PARSING #####
-
-    f = open("t.txt")
+    f = open("training.txt")
     examples = []
     for line in f.readlines():
       examples.append(line.rstrip("\n").split("\t"))
@@ -38,11 +53,18 @@ def main():
         if examples[i][j] == "1":
           attributes[str(j)].append(examples[i][-1])
 
+    
+    # Lets ensure ourself that the information_gain function is working.
+    # This should yield 0.54
+    # examples = [ [2,2],[1,1,1],[1,1,2,2,2,2] ]
+    # parent_example = [1,1,1,1,1,1,2,2,2,2,2,2]
+    # print information_gain(examples, parent_example)
+    
     parent_examples = None
+
+    # Create the tree recursivly
     tree = decision_tree_learning(examples, attributes, parent_examples)
-    print tree.data
-    for child in tree.children:
-      print child.data
+    return tree.print_node()
 
 def decision_tree_learning(examples, attributes, parent_examples):
   """
@@ -52,16 +74,16 @@ def decision_tree_learning(examples, attributes, parent_examples):
       attributes = { 1: [1], 2: [1,2], ... }
       parent_examples = same as examples or None
     Output:
-      A tree, TBD
+      A Node and NodeLeaf tree
   """
   if not examples:
-      return plurality_value(parent_examples)
+      return NodeLeaf(plurality_value(parent_examples))
   elif all_example_classifications_are_equal(examples):
-      return examples[0][-1] # return the classification
+      return NodeLeaf(examples[0][-1]) # return the classification
   elif not attributes:
-      return plurality_value(examples)
+      return NodeLeaf(plurality_value(examples))
   else:
-      A = importance(attributes, examples)
+      A = int(importance(attributes, examples))
       
       # Create a root node based on A
       root = Node(A)
@@ -71,12 +93,18 @@ def decision_tree_learning(examples, attributes, parent_examples):
         for row in range(len(examples)):
           if examples[row][A] == str(i):
             exs.append(examples[row])
+        
+        # Attributes - A
+        at = removekey(attributes, str(A))
 
-      print attributes 
-      del attributes[str(A)]
-      subtree = decision_tree_learning(exs, attributes, examples)
-      root.add_child(subtree)
+        subtree = decision_tree_learning(exs, at, examples)
+        root.add_child(i, subtree)
       return root
+
+def removekey(d, key):
+  r = dict(d)
+  del r[key]
+  return r
 
 def all_example_classifications_are_equal(examples):
     a = examples[0]
@@ -106,6 +134,7 @@ def random_argmax_dict(dict):
   max_value = max(dict.values())
   # list all keys which match the highest value
   t = [key for key in dict.keys() if dict[key] == max_value]
+  print t
   return choice(t)
 
 def plurality_value(parent_examples):
@@ -125,10 +154,13 @@ def plurality_value(parent_examples):
 
 def importance(attributes, examples):
   if random:
-    return int(choice(attributes.keys()))
+    return choice(attributes.keys())
   else:
+    # av is just an array containing the values of each key
     av = [attributes[key] for key,value in attributes.iteritems()]
     outcomes = [e[-1] for e in examples]
+
+    # Creates a "inverse" of the attribute values
     avf = []
     for a in av:
       tmp = list(outcomes)
@@ -136,11 +168,12 @@ def importance(attributes, examples):
         if i in tmp:
           tmp.remove(i)
       avf.append(tmp)
-    
+     
     # Calculate the information gain on each node
-    b = {}
-    for i in range(len(av)):
-      b[i+1] = information_gain([av[i],avf[i]], outcomes)
+    b = {}; i=0
+    for key,value in attributes.iteritems():
+      b[key] = information_gain([av[i],avf[i]], outcomes)
+      i += 1
     return random_argmax_dict(b)
 
 def information_gain(examples, parent_example):
@@ -151,31 +184,30 @@ def information_gain(examples, parent_example):
     Output:
         0.54
   """
+  #print examples
+  #print parent_example
   N = float(len(parent_example))
   remainder = 0.0
   for a in examples:
+    ones = a.count('1')
     l = float(len(a))
     if l:
-      r = B(a.count(1) / l)
+      r = B(ones / l)
       remainder += ((l / N) * r)
+      #print "%s / %s * B(%s / %s) - result: %s" % (l, N, ones, l, remainder)
     else: return 0
-    #print "%s / %s * B(%s / %s)" % (l, N, a.count(1), l)
-  #remainder = sum((float(len(a)) / N) * i for i in [B(a.count(1)/float(len(a)))
-  #  for a in [e for e in examples]])
-  
-  #return B(p / len(examples)) - remainder
-  #TODO: Calculate the B(p / p + n) instead of 1
   return 1 - remainder
 
 def entropy(probabilities):
   return sum(-p * np.log2(p) for p in probabilities)
 
 def B(q):
-  if q == 0: return 0
-  elif q == 1: return 0
-  else: return -(q * np.log2(q) + ((1-q) * np.log2(1-q)))
+  if q == 0 or q == 1: return 0
+  else:
+    return -(q * np.log2(q) + ((1-q) * np.log2(1-q)))
 
 def remove(list, val):
+  # Remove from list where not matching val
   return [value for value in list if value != val]
 
 if __name__ == "__main__":
