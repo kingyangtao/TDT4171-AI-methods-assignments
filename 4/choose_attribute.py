@@ -5,9 +5,19 @@ from random import choice
 random = False
 pp = pprint.PrettyPrinter(indent=4)
 
+class Node():
+  def __init__(self, data):
+    self.data = data
+    self.children = []
+
+  def add_child(self, obj):
+    self.children.append(obj)
+
 def main():
 
-    f = open("training.txt")
+    #### PARSING #####
+
+    f = open("t.txt")
     examples = []
     for line in f.readlines():
       examples.append(line.rstrip("\n").split("\t"))
@@ -22,35 +32,51 @@ def main():
       "7": [],
     }
 
-#    ex = [
-#        [2,2],
-#        [1,1,1,1],
-#        [1,1,2,2,2,2],
-#    ]
-#
-#    parent = [1,1,1,1,1,1,2,2,2,2,2,2]
-#
-#    print information_gain(ex, parent)
-
     for i in range(len(examples)):
       for j in range(1,len(examples[i])):
         # For each attribute save the outcome if the attribute is true
         if examples[i][j] == "1":
           attributes[str(j)].append(examples[i][-1])
 
-    print importance(attributes, examples)
-
-    #tree = decision_tree_learning(examples, attributes, parent_examples)
+    parent_examples = None
+    tree = decision_tree_learning(examples, attributes, parent_examples)
+    print tree.data
+    for child in tree.children:
+      print child.data
 
 def decision_tree_learning(examples, attributes, parent_examples):
-    if not examples:
-        return plurality_value(parent_examples)
-    elif all_example_classifications_are_equal(examples):
-        return examples[0][-1] # return the classification
-    elif not attributes:
-        return plurality_value(examples)
-    else:
-        A = random_argmax(attributes, importance(a, examples))
+  """
+    Example input:
+      examples = [['1', '1', '2', '2', '1', '1', '1', '1'], ['1', '2', '2',
+                  '1', '1', '1', '1', '1']]
+      attributes = { 1: [1], 2: [1,2], ... }
+      parent_examples = same as examples or None
+    Output:
+      A tree, TBD
+  """
+  if not examples:
+      return plurality_value(parent_examples)
+  elif all_example_classifications_are_equal(examples):
+      return examples[0][-1] # return the classification
+  elif not attributes:
+      return plurality_value(examples)
+  else:
+      A = importance(attributes, examples)
+      
+      # Create a root node based on A
+      root = Node(A)
+      
+      exs = []
+      for i in range(1,3):
+        for row in range(len(examples)):
+          if examples[row][A] == str(i):
+            exs.append(examples[row])
+
+      print attributes 
+      del attributes[str(A)]
+      subtree = decision_tree_learning(exs, attributes, examples)
+      root.add_child(subtree)
+      return root
 
 def all_example_classifications_are_equal(examples):
     a = examples[0]
@@ -64,8 +90,9 @@ def random_argmax(args):
         Input: A sorted list
         Output: Random element of the elements on top tie
     """
-    l = []
-    for i in args[1:]:
+    l = args[0]
+    if len(args) > 1:
+      for i in args[1:]:
         if i == args[0]: l.append(i)
         else: break
     return choice(l)
@@ -89,16 +116,16 @@ def plurality_value(parent_examples):
     if not parent_examples: return None
     word_counter = {}
     for x in parent_examples:
-        if x in word_counter:
-            word_counter[x] += 1
+        if x[-1] in word_counter:
+            word_counter[x[-1]] += 1
         else:
-            word_counter[x] = 1
+            word_counter[x[-1]] = 1
     popular = sorted(word_counter, key = word_counter.get, reverse = True)
     return random_argmax(popular)
 
 def importance(attributes, examples):
   if random:
-    return choice(attributes)
+    return int(choice(attributes.keys()))
   else:
     av = [attributes[key] for key,value in attributes.iteritems()]
     outcomes = [e[-1] for e in examples]
@@ -116,9 +143,6 @@ def importance(attributes, examples):
       b[i+1] = information_gain([av[i],avf[i]], outcomes)
     return random_argmax_dict(b)
 
-    #return random_argmax(sorted([information_gain(examples, examples) for a in
-    #  attributes]))
-    
 def information_gain(examples, parent_example):
   """
     Example Input:
@@ -134,6 +158,7 @@ def information_gain(examples, parent_example):
     if l:
       r = B(a.count(1) / l)
       remainder += ((l / N) * r)
+    else: return 0
     #print "%s / %s * B(%s / %s)" % (l, N, a.count(1), l)
   #remainder = sum((float(len(a)) / N) * i for i in [B(a.count(1)/float(len(a)))
   #  for a in [e for e in examples]])
