@@ -1,0 +1,84 @@
+\documentclass{article}
+\usepackage{enumerate}
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage{mathtools}
+\usepackage[utf8]{inputenc}
+
+\setlength{\parindent}{0.0in}
+\setlength{\parskip}{0.1in}
+
+\title{TDT4171 Artificial Intelligence Methods \\ Exercise 4}
+\author{Herman Schistad -- hermansc@stud.ntnu.no}
+\date{13.03.2012}
+
+\begin{document}
+\maketitle
+
+First: I found this exercise suprisingly hard. It wasn't really the algorithm
+that was especially hard, but rather my implementation and perhaps too weak
+knowledge in data structures. I've reached a conclusion where I've really
+should have chosen some other structures for better representing the data at
+hand. But the pseudo code provided in the book was "hard to read" and with
+just a small bit of exercise in translating these algorithms manually I was
+just out of luck this time. 
+
+So perhaps my biggest lesson of this task is not how to construct decision
+trees, but rather to implement algoritihms from pseudo code and finding
+efficient data structures.
+
+That said, I'll try to answer the question to the best of my capability and
+hopefully that will show at least something. 
+
+\section*{What can you conclude about the result you have obtained? Which {\tt
+CHOOSE\-ATTRIBUTE} is better and why?}
+
+My findings, shows that the information gaining version of the {\tt
+CHOOSE\-ATTRIBUTE} algorithms, not suprisingly, is the best. It shows great
+accuracy and learns quickly (a steep happy graph). 
+
+As I've said these results are not suprising. When we do information gaining we
+try to maximize the entropy of a given subtree, in order to choose where to do
+our best (and most eligible) count. This is found by looking at the different
+outlooks of the node and sum of these.
+
+When we have found our best node (which we do with {\tt IMPORTANCE} we set this
+as the root node and continue downwards.
+
+Differing from the random selection this is great because it looks at the
+outlooks and finds the variables which counts the most for the model.
+Imagine you are going on trip and train a model with previous trips. The {\tt
+CHOOSE\-ATTRIBUTE} makes a good guess on what is most important: your bank
+balance or the weather in the county in question. If this is chosen by random
+the root node may be the weather or the bank balance, but e.g. had we trained
+it using my preferences the bank statement would be the root node (very often).
+
+\section*{Do you get the same result if you run {\tt CHOOSE\-ATTRIBUTE several
+times}
+
+No, you will not. Since we have implemented a {\tt random\_argmax} and the
+{\tt information\_gain} function sometimes yields the same result for two nodes
+(e.g. it can't decide which node is the best) we chose a node at random.
+Hence we will get different trees.
+
+\section*{What happens when you run the learner based on information gain
+several times?}
+
+We will see that the previous answer is indeed correct and that the trees are
+different each time (but not too different). With a good learner we will not
+see too many {\emph different} trees.
+It will not help to run the learned many times in order to yield a better
+result.
+
+\section*{Dicussion of code}
+
+Please find the code attached in {\tt code.py}.
+
+The not so finished part of the algorithm is the actual tree printing and hence
+therefore the comparison (including accuracy test).
+Some comments are to be found in the code - please check that the information
+gain algorithm is actually yielding 0.54 and therefore working.
+Also try to change the global {\tt random} variable to True and see the result
+change (and the tree grow a lot bigger).
+
+\end{document}
