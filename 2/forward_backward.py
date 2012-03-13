@@ -100,8 +100,8 @@ def forward_backward(ev, prior, O, T):
     # We then calculate the new probabilty, taken the old into account
     sv[j] = normalize( fv[j] * b )
     #print "Smoothing array for step %i: %s" % (j, sv[j])
-    b = backward(b, ev[j-1], O, T)
     print "Backward-array for step %i: %s " % (j, b)
+    b = backward(b, ev[j-1], O, T)
   
   # Return the final result after smoothing
   return sv

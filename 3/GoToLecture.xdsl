@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<smile version="1.0" id="Network1" numsamples="1000" discsamples="10000">
+	<nodes>
+		<cpt id="x__Beers_last_night">
+			<state id="B0" />
+			<state id="B1_2" />
+			<state id="B3_4" />
+			<state id="B5_6" />
+			<state id="B7orMore" />
+			<probabilities>0.35 0.2 0.1 0.15 0.2</probabilities>
+		</cpt>
+		<cpt id="Hours_of_sleep">
+			<state id="LessThanFour" />
+			<state id="FourToSix" />
+			<state id="SixToEight" />
+			<state id="MoreThanEight" />
+			<probabilities>0.2 0.6 0.19 0.01</probabilities>
+		</cpt>
+		<cpt id="Degrees_centigrade">
+			<state id="Below0" />
+			<state id="Above0" />
+			<probabilities>0.5 0.5</probabilities>
+		</cpt>
+		<cpt id="precipitation">
+			<state id="Yes" />
+			<state id="No" />
+			<probabilities>0.5 0.5</probabilities>
+		</cpt>
+		<cpt id="Control_of_subject">
+			<state id="Poor" />
+			<state id="Some" />
+			<state id="Good" />
+			<probabilities>0.15 0.75 0.1</probabilities>
+		</cpt>
+		<decision id="Days_left_till_exam">
+			<state id="LessThanAMonth" />
+			<state id="BetweenOneAndTwoMonths" />
+			<state id="MoreThanTwoMonths" />
+		</decision>
+		<decision id="Go_to_lecture">
+			<state id="Yes" />
+			<state id="No" />
+			<parents>Days_left_till_exam</parents>
+		</decision>
+		<cpt id="Lecturer_showing_up">
+			<state id="Yes" />
+			<state id="No" />
+			<probabilities>0.96 0.04</probabilities>
+		</cpt>
+		<cpt id="Quality_of_lecture">
+			<state id="Low" />
+			<state id="Medium" />
+			<state id="High" />
+			<parents>Lecturer_showing_up</parents>
+			<probabilities>0.2 0.6 0.2 1 0 0</probabilities>
+		</cpt>
+		<cpt id="Friend_is_sick">
+			<state id="Yes" />
+			<state id="No" />
+			<probabilities>0.05 0.95</probabilities>
+		</cpt>
+		<cpt id="Friends_showing_up">
+			<state id="Yes" />
+			<state id="No" />
+			<parents>Friend_is_sick Days_left_till_exam Degrees_centigrade precipitation</parents>
+			<probabilities>0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0.8 0.2 0.9 0.1 0.9 0.1 0.95 0.05 0.75 0.25 0.85 0.15 0.85 0.15 0.9 0.1 0.7 0.3 0.8 0.2 0.8 0.2 0.85 0.15</probabilities>
+		</cpt>
+		<cpt id="Obtained_new_knowledge">
+			<state id="None" />
+			<state id="Some" />
+			<state id="Lots" />
+			<parents>Go_to_lecture Control_of_subject Quality_of_lecture</parents>
+			<probabilities>0.25 0.5 0.25 0.15 0.5 0.35 0.05 0.35 0.6 0.3 0.5 0.2 0.1 0.45 0.45 0.05 0.3 0.65 0.75 0.2 0.05 0.2 0.3 0.5 0.3 0.3 0.4 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0</probabilities>
+		</cpt>
+		<cpt id="Feeling_sick">
+			<state id="Yes" />
+			<state id="No" />
+			<probabilities>0.05 0.95</probabilities>
+		</cpt>
+		<cpt id="Physical_Shape">
+			<state id="Good" />
+			<state id="Ok" fault="true" />
+			<state id="Bad" />
+			<parents>Feeling_sick x__Beers_last_night Hours_of_sleep</parents>
+			<probabilities>0 0 1 0 0 1 0 0.1 0.9 0 0.3 0.7 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0.7 0.3 0 0.9 0.1 0 1 0 0 1 0 0 0.65 0.35 0 0.85 0.15 0 0.95 0.05 0 1 0 0 0.6 0.4 0 0.8 0.2 0 0.9 0.1 0 1 0 0 0.5 0.4 0.1 0.6 0.35 0.05 0.7 0.3 0 0.9 0.1 0 0.1 0.5 0.4 0.2 0.6 0.2 0.5 0.4 0.1 0.7 0.25 0.05</probabilities>
+		</cpt>
+		<utility id="U">
+			<parents>Go_to_lecture Obtained_new_knowledge Physical_Shape Friends_showing_up Days_left_till_exam Degrees_centigrade precipitation</parents>
+			<utilities>-5 0 0 5 -10 -5 -5 0 -15 -10 -10 -5 -10 -5 -5 0 -15 -10 -10 -5 -20 -15 -15 -10 -15 -10 -10 -5 -20 -15 -15 -10 -25 -20 -20 -15 -20 -15 -15 -10 -25 -20 -20 -15 -30 -25 -25 -20 -45 -40 -40 -35 -50 -45 -45 -40 -55 -50 -50 -45 -50 -45 -45 -40 -55 -50 -50 -55 -60 -55 -55 -50 15 20 20 25 10 15 15 20 5 10 10 15 10 15 15 20 5 10 10 15 0 5 5 10 5 20 20 15 0 5 5 10 -5 0 0 5 0 5 5 10 -5 0 0 5 -10 -5 -5 0 -25 -20 -20 -15 -30 -25 -25 -20 -35 -30 -30 -25 -30 -25 -25 -20 -35 -30 -30 -35 -30 -35 -35 -30 45 50 50 55 40 45 45 50 35 40 40 45 40 45 45 50 35 40 40 45 30 35 35 40 35 50 50 45 30 35 35 40 25 30 30 35 30 35 35 40 25 30 30 35 20 25 25 30 5 10 10 15 0 5 5 10 -5 0 0 5 0 5 5 10 -5 0 0 5 0 5 5 10 5 0 0 -5 10 5 5 0 15 10 10 5 10 5 5 0 15 10 10 5 20 15 15 10 15 10 10 5 20 15 15 10 25 20 20 15 20 15 15 10 25 20 20 15 30 25 25 20 45 40 40 35 50 45 45 40 55 50 50 45 50 45 45 40 55 50 50 55 60 55 55 50 -15 -20 -20 -25 -10 -15 -15 -20 -5 -10 -10 -15 -10 -15 -15 -20 -5 -10 -10 -15 0 -5 -5 -10 -5 -20 -20 -15 0 -5 -5 -10 5 0 0 -5 0 -5 -5 -10 5 0 0 -5 10 5 5 0 25 20 20 15 30 25 25 20 35 30 30 25 30 25 25 20 35 30 30 35 30 35 35 30 -45 -50 -50 -55 -40 -45 -45 -55 -35 -40 -40 -45 -40 -45 -45 -50 -35 -40 -40 -45 -30 -35 -35 -40 -35 -50 -50 -45 -30 -35 -35 -40 -25 -30 -30 -35 -30 -35 -35 -40 -25 -30 -30 -35 -20 -25 -25 -30 -5 -10 -10 -15 0 -5 -5 -10 5 0 0 -5 0 -5 -5 -10 5 0 0 -5 0 -5 -5 -10</utilities>
+		</utility>
+	</nodes>
+	<extensions>
+		<genie version="1.0" app="GeNIe 2.0.4334.1" name="Network1" faultnameformat="nodestate">
+			<node id="x__Beers_last_night">
+				<name># Beers last night</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="16" />
+				<position>1087 278 1300 341</position>
+			</node>
+			<node id="Hours_of_sleep">
+				<name>Hours of sleep</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="16" />
+				<position>1096 395 1289 451</position>
+			</node>
+			<node id="Degrees_centigrade">
+				<name>Degrees centigrade</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="16" />
+				<position>647 569 860 637</position>
+			</node>
+			<node id="precipitation">
+				<name>Precipitation</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="16" />
+				<position>514 512 688 560</position>
+			</node>
+			<node id="Control_of_subject">
+				<name>Control of subject</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="16" />
+				<position>501 77 731 139</position>
+			</node>
+			<node id="Days_left_till_exam">
+				<name>Days left till exam</name>
+				<interior color="ccffcc" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="16" />
+				<position>133 465 336 523</position>
+			</node>
+			<node id="Go_to_lecture">
+				<name>Go to lecture</name>
+				<interior color="ccffcc" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="16" />
+				<position>227 319 390 379</position>
+				<barchart active="true" width="324" height="84" />
+			</node>
+			<node id="Quality_of_lecture">
+				<name>Quality of lecture</name>
+				<interior color="ffff99" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="16" />
+				<position>746 155 996 205</position>
+			</node>
+			<node id="Friends_showing_up">
+				<name>Friend showing up</name>
+				<interior color="ffff99" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="16" />
+				<position>200 595 486 642</position>
+			</node>
+			<node id="Lecturer_showing_up">
+				<name>Lecturer showing up</name>
+				<interior color="ffff99" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="16" />
+				<position>794 72 1078 122</position>
+			</node>
+			<node id="Obtained_new_knowledge">
+				<name>Obtained new knowledge</name>
+				<interior color="ffff99" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="16" />
+				<position>608 232 927 287</position>
+			</node>
+			<node id="U">
+				<name>Quality of life</name>
+				<interior color="cc99ff" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="16" />
+				<position>567 380 782 425</position>
+				<barchart width="202" height="84" />
+			</node>
+			<node id="Physical_Shape">
+				<name>Physical Shape</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="16" />
+				<position>840 374 1025 425</position>
+			</node>
+			<node id="Friend_is_sick">
+				<name>Friend is sick</name>
+				<interior color="ffff99" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="16" />
+				<position>209 684 478 730</position>
+			</node>
+			<node id="Feeling_sick">
+				<name>Feeling sick</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="16" />
+				<position>988 488 1215 531</position>
+			</node>
+		</genie>
+	</extensions>
+</smile>
