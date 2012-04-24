@@ -1,0 +1,233 @@
+\documentclass{article}
+\usepackage{enumerate}
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage{mathtools}
+\usepackage[utf8]{inputenc}
+
+\setlength{\parindent}{0.0in}
+\setlength{\parskip}{0.1in}
+
+\title{TDT4171 Artificial Intelligence Methods \\ Exercise 5}
+\author{Herman Schistad -- hermansc@stud.ntnu.no}
+\date{19.04.2012}
+
+\begin{document}
+\maketitle
+
+\section*{Getting familiar with Weka}
+
+\begin{enumerate}[1.]
+
+\item \textit{Explain the output}
+
+Let us first take a look at the confusion matrix; it looks like this by running
+the weather.arff through the IB1-algorithm:
+
+\begin{verbatim}
+a b   <-- classified as
+9 0 | a = yes
+0 5 | b = no
+\end{verbatim}
+
+The weather data contains 14 instances on this format:
+
+\begin{verbatim}
+@data
+sunny,    85, 85, FALSE,  no
+sunny,    80, 90, TRUE,   no
+overcast, 83, 86, FALSE,  yes
+rainy,    70, 96, FALSE,  yes
+[...]
+\end{verbatim}
+
+In the confusion matrix, each column represent the instances in a predicted
+class, while each row represents the instances in an actual class. That is:
+"Actual vs. predicted" one can easily visualize the effect/performance of a
+given algorithm. 
+
+However, in the Weka we use a "table of confusion" (called confusion matrix
+too) which contains two rows and columns, that shows the number of false/true
+positives/negatives. This matrix is just a short form of the matrix described
+in the preceding paragraph, as it shows us how many instances which was
+predicted correct/not correct.
+
+We see that we have 9 true positives (actual yes which was predicted as
+yes) and 5 true negatives (actual no which was predicted as no).
+
+There is not much intresting output, except for this matrix, however I should
+mention the following outputs:
+
+\textit{ Mean absolute error:} A measure of how close the predictions are to the
+actual outcomes. It takes an average of the absolute errors (in this example
+0).
+\textit{ Kappa statistic:} Measures the agreement among raters. It gives a score
+of how much consensus there is in the results/predictions. Here 1 is full
+confidence.
+\textit{ Root mean squared error:} The square root of the mean quadratic loss.
+
+\item \textit{ Compare the results for the 2 algorithms used. Why do they perform
+the way they do? For each algorithm, describe the difference (if any) in
+performance (accuracy) on the training data and cross-validation.}
+
+IB1 finds the most similar training item and will reuse that item's
+classification (hence the name 'nearest neighbour algorithm'). When we run this
+algorithm over the training data, it will first match the the data with the
+training data it self, yielding 100\% accuracy - then reusing the results.
+In cross validation, we see the closest of the remaining items is reused and
+with 10 folds it yields:
+
+\begin{verbatim}
+Correctly Classified Instances          11               78.5714 %
+\end{verbatim}
+
+ID3 builds a decision tree in order to classify the instances. Again the ID3,
+as IB1, matches the training data perfectly and hence gets 100\% accuracy on
+the training data. The cross validation with 10 folds yields:
+
+\begin{verbatim}
+Correctly Classified Instances          12               85.7143 %
+\end{verbatim}
+
+Which is the result of the tree being built from the remaining items and then
+used to classify the different test instances.
+
+\item \textit{ Explain the format of the .arff data files. Why does Weka's ID3
+implementation need another type of data? What is nominal data, and how does
+nominal data differ from the data used in the other two examples?}
+
+The .arff files contains 3 parts:
+
+\textit{ @relation header} which just names the relation.
+\textit{ @attribute section} which list the different possible attributes.
+\textit{ @data section} which contains the different instances.
+
+Example:
+\begin{verbatim}
+@relation weather
+[...]
+@attribute outlook \{sunny, overcast, rainy\}
+[...]
+@data
+sunny,85,85,FALSE,no
+[...]
+\end{verbatim}
+
+The attributes can either be real values, sets of values (strings, numeric,
+dates or nominal). The data section contains instances, where each 'column'
+represents the corresponding attribute in the header.
+If a value is missing it is denoted with a question mark.
+
+Since ID3 only uses nominal data (and hence not real number) we need to have
+different attribute definitions for the ID3 algorithm. A nominal data can be
+regarded as the symbolic value of something and not the numerical, that is you
+can say: "The man is tall" which would mean anything over e.g. 180 centimeters,
+"The man is short" which perhaps in anything under 160 centimeters etc.
+
+In the weather.nominal.arff we therefore write
+
+\begin{verbatim}
+@attribute temperature {hot, mild, cool}
+\end{verbatim}
+
+Instead of
+
+\begin{verbatim}
+@attribute temperature real
+\end{verbatim}
+
+The reason for this is due to the ID3 algorithm constructs a decision tree, it
+would create infinite many branches with real values and therefore we need more
+'general' terms.
+
+\end{enumerate}
+
+\section*{Lazy learning vs. eager learning}
+
+\begin{enumerate}[1.]
+
+\item \textit{ Explain what lazy learning and eager learning methods are
+respectivly.}
+
+{\bf Lazy learning:} Is a method in which the generalization of training data
+in the system is delayed until a query is made to it. The target function is
+hence approximated locally for each query to the system - and with this method
+we can solve multiple problems simultaneously (and deal with changes in the
+domain).
+
+{\bf Eager learning:} Is a method in which the generalization of traning data
+in the system is contructed as a general, input dependent target function
+during the training of the system. Hence the target function will be
+approximated globally during training (and requires much less space).
+Post-training queries does not effect the system and a query to the system will
+always produce the same result. 
+
+\newpage
+
+\item \textit{ Describe the most important differences between lazy learning and eager
+learning methods.}
+
+\begin{table}[ht]
+  \begin{tabular}{p{6cm} p{6cm}} \hline
+      {\bf Lazy learning}                   & {\bf Eager learning} \\ \hline
+      Generalization is delayed until a query is made & Generalization is
+      constructed before queries are made \\ \hline
+      Requires large amount of space  & Requires small amount of space \\
+      \hline
+      Dynamic target function in in regards to changing domain & Static
+target function \\ \hline
+      Solve multiple problems simultaneously & One problem at a time \\ \hline
+      Post-training                   & Same output each time \\ \hline
+  \end{tabular}
+\end{table}
+
+\item \textit{ List two learning methods of each type, and briefly explain in one
+sentence how the learning is done eagerly or lazily for each of them.}
+
+{\bf Lazy learning:}
+IB1: Instance based learning, which just returns the closest training item.
+Case-based reasoning: Look at each case and adapts the solution with regards to
+previous cases.
+
+{\bf Eager learning:} 
+Artificial neural network: Builds and trains a network, imitating a neural
+network in the brain.
+ID3: Builds a classification tree by looking at max/min entropy.
+
+\end{enumerate}
+
+\section*{Case-based reasoning (CBR) and k-nearest neighbour}
+
+\begin{enumerate}[1.]
+
+\item \textit{ Describe the 4 steps of the CBR process. What happens inside each
+step of the cycle?}
+
+{\bf Retreive:} From the memory, retreive cases relevant to solving the problem
+at hand. Included in this case is the problem, a solution and how the solution
+was derived.
+
+{\bf Reuse:} Adapt the solution to the problem at hand.
+
+{\bf Revise:} Test the solution and if it does not work: revise.
+
+{\bf Retain:} If the solution was successfull, save the solution as a case
+(described earlier). 
+
+\item \textit{ Describe the main differences between simple nearest neighbour
+methods and typical CBR methods}
+
+In a case-based method we usually have more complex and advanced measures for
+finding and identifing similarity, between similar problems. In a typical
+nearest neighbour method, we often just find the closest training instance and
+find common classifications. This applies especially bad in regards to
+non-numeric data.
+
+In CBR-methods however, with non-numeric data, we can compare cases looking at
+the entire data and training set, finding the mean and use this for our final
+solution/revisement. This way we have a more adaptive, robust and fear method
+in finding solutions to learning problems.
+
+\end{enumerate}
+
+\end{document}
